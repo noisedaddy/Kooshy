@@ -137,6 +137,63 @@ class Kohana_Controller_KMS_SuperAdmin extends Controller_Template {
 		}
 	}
 
+	/**
+	 * Loads users pages
+	 */
+	public function action_users() {
+		switch (Request::$current->param('section')) {
+			case 'overview':
+				$this->template->title = 'Kooshy Users';
+				$users = ORM::factory('user')->find_all();
+				$this->template->content = View::factory('kms/super-users-overview', compact('users'));
+				break;
+			case 'add':
+				$this->template->title = 'Adding Template';
+				$template = array();
+				if (KMS::Session()->path('ua.status') === 'failed') {
+					$template = KMS::Session()->path('ua.fields');
+				}
+				$this->template->content = View::factory('kms/template-add', compact('template'));
+				break;
+			case 'edit':
+				$this->template->title = 'Editing User';
+				$user = ORM::factory('user')->find(Request::$current->param('id'));
+				if (!$user->loaded()) KMS::stop('The requested user was not found');
+				$user->password = '';
+				if (KMS::Session()->path('ua.status') === 'failed') {
+					$user->values(KMS::Session()->path('ua.fields'));
+				}
+
+				$sites = array();
+				foreach (ORM::factory('site')->find_all() as $site) {
+					$roles = array();
+					foreach ($site->roles->find_all() as $role) {
+						$roles[$role->id] = $role->name;
+					}
+					$sites[] = array_merge(
+						$site->as_array(),
+						array(
+							'roles' => $roles,
+							'user_role' => ORM::factory('site_user')->where('user_id', '=', $user->id)->find($site->id)->role_id
+						)
+					);
+				}
+
+				$user = $user->as_array();
+				$this->template->content = View::factory('kms/super-users-edit', compact('user', 'sites'));
+				break;
+			case 'delete':
+				$template = KMS::instance('site')->templates->find(Request::$current->param('id'));
+				if (!$template->loaded()) KMS::stop('The requested template was not found');
+				$template = $template->as_array();
+				$this->template->title = 'Delete Template';
+				$this->template->content = View::factory('kms/template-delete', compact('template'));
+				break;
+			default:
+				Request::$current->redirect( Route::url('kms-superadmin', array('action'=>'users', 'section'=>'overview')) );
+		}
+	}
+
 
 	/**
 	 * Loads template pages

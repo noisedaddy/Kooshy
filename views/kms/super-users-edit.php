@@ -20,7 +20,7 @@
 			</div>
 			<?php } ?>
 
-			<?php echo form::open(Route::url('kms-action', array('action'=>'user_edit'))) ?>
+			<?php echo form::open(Route::url('kms-action', array('action'=>'super_user_edit'))) ?>
 			<?php echo form::hidden('id', $user['id']) ?>
 
 				<fieldset class="column-left">
@@ -33,8 +33,8 @@
 						<input class="text-input medium-input" type="text" id="ff_username" name="username" value="<?php echo arr::get($user, 'username') ?>" />
 					</p>
 					<p>
-						<label for="ff_role">Role</label>
-						<?php echo form::select('role', $roles, arr::path($user, 'role.id'), array('class'=>'medium-input', 'id'=>'ff_role')) ?>
+						<label for="ff_email">Email</label>
+						<input class="text-input medium-input" type="text" id="ff_email" name="email" value="<?php echo arr::get($user, 'email') ?>" />
 					</p>
 				</fieldset>
 
@@ -54,15 +54,23 @@
 				</fieldset>
 				<div class="clear"></div>
 
-				<fieldset>
-					<p>
-						<label for="ff_email">Email</label>
-						<input class="text-input large-input" type="text" id="ff_email" name="email" value="<?php echo arr::get($user, 'email') ?>" />
-					</p>
-					<p>
-						<input class="button" type="submit" value="Submit" />
-					</p>
-				</fieldset>
+				<p><strong>Site Roles</strong></p>
+				<table class="data">
+					<tbody>
+						<?php foreach ($sites as $item) { ?>
+						<tr>
+							<td><?php echo $item['description'] ?></td>
+							<td>
+								<?php echo form::select('role[' . $item['id'] . ']', $item['roles'], $item['user_role'], array('class' => 'medium-input')) ?>
+							</td>
+						</tr>
+						<?php } ?>
+					</tbody>
+				</table><br />
+
+				<p>
+					<input class="button" type="submit" value="Submit" />
+				</p>
 				<div class="clear"></div><!-- End .clear -->
 			</form>
 

@@ -27,6 +27,7 @@ class Model_Site extends ORM {
 	protected $_has_many = array(
 		'content'        => array( 'model' => 'site_content' ),
 		'lists'          => array( 'model' => 'site_list' ),
+		'roles'          => array( 'model' => 'role' ),
 		'routes'         => array( 'model' => 'site_route' ),
 		'site_snippets'  => array( 'model' => 'site_snippet' ),
 		'snippets'       => array( 'model' => 'snippet', 'through' => 'site_snippets' ),
@@ -49,5 +50,13 @@ class Model_Site extends ORM {
 			'not_empty'  => NULL,
 		),
 	);
+
+	public function __get($column) {
+		$model = parent::__get($column);
+		if ($column == 'roles') {
+			$model = $model->or_where('roles.site_id', '=', NULL);
+		}
+		return $model;
+	}
 
 }
